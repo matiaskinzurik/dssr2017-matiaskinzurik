@@ -2,19 +2,23 @@
 setwd("~/Desktop/Program/")
 
 library("tools")
+library(ggplot2)
+library(grid)
+library(gridExtra)
+
 Open_File = function(filename) {
   
   if(toupper(file_ext(filename)) != "CSV") 
     stop("File is not a CSV. Please load CSV file")
-  
-  # Read a file
-  # read.csv(file = "Bioscreen_Raw.csv", header = TRUE)
-  
-  dat = read.csv(file = filename, header = TRUE)
+    dat = read.csv(file = filename, header = TRUE)
   
   return(dat)
 }
-  
+
+# Read a file
+
+dat = Open_File("Bioscreen_Raw.csv")
+
 # Define variables
 Time = dat[, 1:1]
 WT = dat[, 2:4]
@@ -94,7 +98,7 @@ Allplots = function(){
 
 Allplots()
 
-# Adding text on plot
+# Writting down sigmoideal formula and adding text on plot
 FormulaStrain1 = paste0("y = ",paramsStrain1[1], length = 2, "/(1+e(-",paramsStrain1[2],"*(x-",paramsStrain1[3],")))")
 FormulaStrain2 = paste0("y = ",paramsStrain2[1],"/(1+e(-",paramsStrain2[2],"*(x-",paramsStrain2[3],")))")
 FormulaStrain3 = paste0("y = ",paramsStrain3[1],"/(1+e(-",paramsStrain3[2],"*(x-",paramsStrain3[3],")))")
@@ -102,16 +106,6 @@ FormulaStrain4 = paste0("y = ",paramsStrain4[1],"/(1+e(-",paramsStrain4[2],"*(x-
 FormulaStrain5 = paste0("y = ",paramsStrain5[1],"/(1+e(-",paramsStrain5[2],"*(x-",paramsStrain5[3],")))")
 FormulaStrain6 = paste0("y = ",paramsStrain6[1],"/(1+e(-",paramsStrain6[2],"*(x-",paramsStrain6[3],")))")
 FormulaWT = paste0("y = ",paramsWT[1],"/(1+e(-",paramsWT[2],"*(x-",paramsWT[3],")))")
-
-
-# localize and include text with formula on plot
-text(150,y = 1, labels = FormulaStrain1, col = "grey")
-text(150,y = 1.1 , labels = FormulaStrain2, col = "orange")
-text(150,y = 1.2 , labels = FormulaStrain3, col = "green")
-text(150,y = 1.3 , labels = FormulaStrain4, col = "brown")
-text(90,y = 0.9 , labels = FormulaStrain5, col = "blue")
-text(90,y = 0.8 , labels = FormulaStrain6, col = "red")
-text(150,y = 0.4 , labels = FormulaWT, col = "purple")
 
 # Create Table with data from sigmoid equation calculation
 
@@ -123,6 +117,16 @@ EqTable = as.table(EqTable)
 
 EqTable
 
+# Place multiple graphs per page
+
+par(mfrow=c(1,2))
+Allplots()
+plot.new()
+plot.window(xlim=c(0,100), ylim=c(0,100))
+text(20,35, paste(EqTable, collapse='\n'), adj = c(0,0))
+text(-4,35, paste(rownames(EqTable), collapse='\n'), adj = c(0,0))
+text(28,58, paste(colnames(EqTable), collapse='\n'), adj = c(0,0))
+par(mfrow=c(1,1))
 
 # Statistical analysis
 # Calculate Standard Deviation for the three replicates
@@ -133,10 +137,3 @@ sdStrain3 = apply(Strain3,1,sd)
 sdStrain4 = apply(Strain4,1,sd)
 sdStrain5 = apply(Strain5,1,sd)
 sdStrain6 = apply(Strain6,1,sd)
-
-# Place multiple graphs per page
-
-library(ggplot2)
-library(grid)
-library(gridExtra)
-
